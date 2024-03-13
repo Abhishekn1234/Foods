@@ -5,6 +5,7 @@ const AdminRegister = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
+  const [MobileNumber, setMobileNumber] = useState('');
   const [error, setError] = useState('');
  const navigate=useNavigate();
   const handleSubmit = async (e) => {
@@ -12,6 +13,7 @@ const AdminRegister = () => {
     try {
       const response = await axios.post('http://localhost:5000/admin/register', { email, password, name });
       console.log(response.data); 
+      localStorage.setItem('Mobile',MobileNumber);
       alert(response.data);
       navigate('/admin-login')// You can handle success response here
     } catch (error) {
@@ -36,6 +38,15 @@ const AdminRegister = () => {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="Password"
+            required
+          />
+        </div>
+        <div>
+          <input
+            type="text"
+            value={MobileNumber}
+            onChange={(e) => setMobileNumber(e.target.value)}
+            placeholder="Mobile Number"
             required
           />
         </div>

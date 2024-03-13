@@ -8,15 +8,16 @@ export default function UserActivity() {
   useEffect(() => {
     async function fetchUserOrders() {
       try {
-        const response = await axios.get('http://localhost:5000/orders');
+        const response = await axios.get('http://localhost:5000/orderss');
         setUserOrders(response.data);
       } catch (error) {
         console.error('Error fetching user orders:', error);
       }
     }
-
+  
     fetchUserOrders();
   }, []);
+  
 
   return (
     <div>
@@ -30,6 +31,8 @@ export default function UserActivity() {
             <th>Product Name</th>
             <th>Price</th>
             <th>Quantity</th>
+            <th>Payment Status</th>
+            <th>Payment Method</th>
             {/* Add more columns as needed */}
           </tr>
         </thead>
@@ -49,7 +52,7 @@ export default function UserActivity() {
               <td>
                 {order.cartItems.map(item => (
                   <div key={item._id}>
-                    ${item.option ? item.option.price * item.quantity : item.price * item.quantity}
+                    ${item.price * item.quantity}
                   </div>
                 ))}
               </td>
@@ -60,6 +63,9 @@ export default function UserActivity() {
                   </div>
                 ))}
               </td>
+              <td>{order.payment.status}</td>
+              <td>{order.payment.method}</td>
+
               {/* Add more columns as needed */}
             </tr>
           ))}

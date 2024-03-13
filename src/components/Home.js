@@ -116,7 +116,22 @@ export default function Home() {
                 <Card.Img variant="top" src={food.image} className="card-img-top" style={{ height: '160px', objectFit: 'cover' }} />
                 <Card.Body className="d-flex flex-column">
                   <Card.Title>{food.name}</Card.Title>
-                  <Button variant="primary" onClick={() => handleModalOpen(food)} className="mt-auto">View Details</Button>
+                  <Card.Text>Stock: {food.inStock ? 'In Stock' : 'Out of Stock'}</Card.Text>
+<Button
+  variant="primary"
+  onClick={() => {
+    if (food.inStock) {
+      handleModalOpen(food);
+    }
+  }}
+  className="mt-auto"
+  disabled={!food.inStock} // Disable the button if the item is out of stock
+>
+  View Details
+</Button>
+
+
+                
                 </Card.Body>
               </Card>
             </Col>

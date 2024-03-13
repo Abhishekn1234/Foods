@@ -13,6 +13,21 @@ export default function Cart() {
   const Name = localStorage.getItem('Name');
   const navigate = useNavigate();
 
+  // Load cart data from localStorage on component mount
+  // Load cart data from localStorage on component mount
+useEffect(() => {
+  const storedCart = JSON.parse(localStorage.getItem('cart')) || [];
+  dispatch({ type: 'SET_CART', payload: storedCart });
+}, [dispatch]);
+
+// Update localStorage whenever cart changes
+useEffect(() => {
+  localStorage.setItem('cart', JSON.stringify(cart));
+}, [cart]);
+
+  
+
+  // Update total price when cart changes
   useEffect(() => {
     let totalPrice = 0;
     if (cart) {
@@ -24,6 +39,7 @@ export default function Cart() {
     setTotalPrice(totalPrice);
   }, [cart]);
 
+  
   const handleRemoveItem = (index) => {
     dispatch({ type: 'REMOVE_FROM_CART', payload: index });
   };
