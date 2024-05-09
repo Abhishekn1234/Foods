@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { Table, Button } from 'react-bootstrap';
 import axios from 'axios';
 import { useCart, useDispatchCart } from './Contextreducer';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate,Link } from 'react-router-dom';
 
 export default function Cart() {
   const cart = useCart();
@@ -50,7 +50,7 @@ useEffect(() => {
         console.error('User email or name not found in localStorage');
         return;
       }
-      const response = await axios.post('http://localhost:5000/orders', { email: userEmail, cartItems: cart, Name: Name });
+      const response = await axios.post('/orders', { email: userEmail, cartItems: cart, Name: Name });
       console.log('Checkout response:', response.data);
       dispatch({ type: 'CLEAR_CART' });
       alert('Checkout successful!');
@@ -81,7 +81,7 @@ useEffect(() => {
               <td>${item.option ? item.option.price : item.price}</td>
               <td>{item.quantity}</td>
               <td>
-                <Button variant="danger" onClick={() => handleRemoveItem(index)}>Remove</Button>
+                <Button variant="danger" onClick={() => handleRemoveItem(index)} style={{"backgroundColor":"red"}}>Remove</Button>
               </td>
             </tr>
           ))}
@@ -90,14 +90,17 @@ useEffect(() => {
       {cart.length > 0 ? (
         <div className="checkout-container">
           <h2>Total Price: ${totalPrice}</h2>
-          <Button variant="primary" onClick={handleCheckout}>Checkout</Button>
+          <Button variant="primary" onClick={handleCheckout} style={{"backgroundColor":"blue"}}>Checkout</Button>
         </div>
       ) : (
         <div className="empty-cart-container">
           <h2>Your cart is empty</h2>
-          <Button variant="info" onClick={() => navigate('/')}>Back to Home</Button>
+          <Button variant="info" onClick={() => navigate('/')}  style={{"backgroundColor":"blue"}} >Back to Home</Button>
         </div>
       )}
+      
+
     </div>
+     
   );
 }

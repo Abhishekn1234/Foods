@@ -1,4 +1,3 @@
-// Home.js
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Card, Button, Modal, Row, Col, Form } from 'react-bootstrap';
@@ -22,10 +21,10 @@ export default function Home() {
   useEffect(() => {
     async function fetchData() {
       try {
-        const foodResponse = await axios.get('http://localhost:5000/foods');
+        const foodResponse = await axios.get('/foods');
         setFoods(foodResponse.data);
         
-        const categoryResponse = await axios.get('http://localhost:5000/category');
+        const categoryResponse = await axios.get('/category');
         const categories = categoryResponse.data.map(category => ({
           ...category,
           count: foodResponse.data.filter(food => food.category === category.category).length
@@ -91,16 +90,16 @@ export default function Home() {
   };
 
   return (
-    <div className="bg-dark text-light p-4">
-      <h1>Categories</h1>
+    <div className="bg-light text-black p-4">
+      <h1 className="text-3xl mb-4">Categories</h1>
       <Form className="mb-3">
-        <Form.Control type="text" placeholder="Search" value={searchTerm} onChange={handleSearch} />
+        <Form.Control type="text" placeholder="Search" value={searchTerm} onChange={handleSearch} className="w-full" />
       </Form>
       <Row>
         {categories.map(category => (
           <Col key={category._id} xs={4} md={2} className="mb-3">
-            <div className={`bg-secondary text-light p-3 mb-2 ${selectedCategory === category.category ? 'selected' : ''}`} onClick={() => handleCategorySelect(category.category)}>
-              <h2>{category.category} ({category.count})</h2>
+            <div className={`bg-primary text-light p-1 border-light mb-0 cursor-pointer ${selectedCategory === category.category ? 'selected' : ''}`} onClick={() => handleCategorySelect(category.category)}>
+              <h2 className="text-xl">{category.category} ({category.count})</h2>
             </div>
           </Col>
         ))}
@@ -109,30 +108,27 @@ export default function Home() {
       <Row>
         {foods
           .filter(food => selectedCategory === '' || food.category === selectedCategory)
-          .filter(food => food.name.toLowerCase().includes(searchTerm.toLowerCase())) // Apply search filter
+          .filter(food => food.name.toLowerCase().includes(searchTerm.toLowerCase()))
           .map(food => (
-            <Col key={food._id} xs={6} md={4} lg={3} className="mb-4">
-              <Card style={{ width: '220px', height: '320px' }}>
-                <Card.Img variant="top" src={food.image} className="card-img-top" style={{ height: '160px', objectFit: 'cover' }} />
-                <Card.Body className="d-flex flex-column">
-                  <Card.Title>{food.name}</Card.Title>
-                  <Card.Text>Stock: {food.inStock ? 'In Stock' : 'Out of Stock'}</Card.Text>
-<Button
-  variant="primary"
-  onClick={() => {
-    if (food.inStock) {
-      handleModalOpen(food);
-    }
-  }}
-  className="mt-auto"
-  disabled={!food.inStock} // Disable the button if the item is out of stock
->
-  View Details
-</Button>
-
-
-                
-                </Card.Body>
+            <Col key={food._id} xs={5} md={5} lg={2} className="col-md-4 mb-0 mr-0 ml-0">
+              <Card className="bg-white rounded-lg overflow-hidden shadow-md" style={{ width: '220px', height: '390px' }}>
+                <img src={food.image} alt={food.name} className="w-full  object-cover" style={{"width":"100%",height:"45%",objectFit:"cover"}}/>
+                <div className="p-4">
+                  <h2 className="text-lg font-semibold mb-2">{food.name}</h2>
+                  <p className="text-sm">Stock: {food.inStock ? 'In Stock' : 'Out of Stock'}</p>
+                  <Button
+                    variant="primary"
+                    onClick={() => {
+                      if (food.inStock) {
+                        handleModalOpen(food);
+                      }
+                    }}
+                    disabled={!food.inStock} // Disable the button if the item is out of stock
+                    className="mt-2 bg-color-blue" style={{"backgroundColor":"blue"}}
+                  >
+                    View Details
+                  </Button>
+                </div>
               </Card>
             </Col>
           ))}
@@ -143,7 +139,7 @@ export default function Home() {
           <Modal.Title>{selectedFood && selectedFood.name}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <p><strong>Price:</strong> ${selectedOption ? selectedOption.price : (selectedFood && selectedFood.price)}</p>
+          <p><strong>Price:</strong> ${selectedOption ? selectedOption.price : (selectedOption && selectedOption.price)}</p>
           <p>
             <strong>Quantity:</strong> 
             <input type="number" min="1" value={quantity} onChange={(e) => handleQuantityChange(e.target.value)} required />
@@ -151,7 +147,20 @@ export default function Home() {
           {selectedFood && selectedFood.options && selectedFood.options.length > 0 && (
             <p>
               <strong>Options:</strong>
-              <select onChange={(e) => handleOptionSelect(JSON.parse(e.target.value))} required={selectedOption ? true : false}>
+              <select onChange={(e) => {
+                const optionValue = e.target.value;
+                if (optionValue) {
+                  try {
+                    const parsedOption = JSON.parse(optionValue);
+                    handleOptionSelect(parsedOption);
+                  } catch (error) {
+                    console.error("Error parsing JSON:", error);
+                  }
+                } else {
+                  // Handle empty value
+                  handleOptionSelect(null);
+                }
+              }} required={selectedOption ? true : false}>
                 <option value="">Select Option</option>
                 {selectedFood.options.map((option, index) => (
                   <option key={index} value={JSON.stringify(option)}>{option.name} - ${option.price}</option>
@@ -162,15 +171,14 @@ export default function Home() {
           <p><strong>Total Price:</strong> ${totalPrice}</p>
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={() => setModalShow(false)}>Close</Button>
-          <Button variant="primary" onClick={handleAddToCart}>Add to Cart</Button>
+          <Button variant="secondary" onClick={() => setModalShow(false)}style={{"backgroundColor":"green"}}>Close</Button>
+          <Button variant="primary" onClick={handleAddToCart} style={{"backgroundColor":"blue"}}>Add to Cart</Button>
         </Modal.Footer>
       </Modal>
-   
 
       {/* Footer */}
-      <footer className="bg-dark text-light text-center p-3 mt-5">
-        <div className="container">
+      <footer className="bg-light text-black text-center p-3 mt-5">
+        <div className="container-fluid">
           <p>© 2024 Food Rage. All rights reserved.</p>
           <p><Link to="/">Privacy Policy</Link> | <Link to="/">Terms of Service</Link></p>
           <p><Link to="/cart"> My Cart</Link></p>

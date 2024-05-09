@@ -20,7 +20,7 @@ const reducer = (state, action) => {
         // If it's a new item or a new option, add it to the cart
         return [...state, action.payload];
       }
-
+    
     case 'UPDATE_QUANTITY':
       return state.map((item, index) =>
         index === action.payload.index ? { ...item, quantity: action.payload.quantity } : item

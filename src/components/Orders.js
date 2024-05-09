@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Table, Button, Modal, Form } from "react-bootstrap";
 import axios from "axios";
-
+import {Link} from "react-router-dom"
 export default function Orders() {
   const [orders, setOrders] = useState([]);
   const [totalPrice, setTotalPrice] = useState(0);
@@ -34,7 +34,7 @@ export default function Orders() {
         return;
       }
 
-      const response = await axios.get("http://localhost:5000/orders", {
+      const response = await axios.get("/orders", {
         headers: {
           userEmail,
           userName,
@@ -78,7 +78,7 @@ export default function Orders() {
 
   const handleDeleteOrder = async (orderId) => {
     try {
-      await axios.delete(`http://localhost:5000/orders/${orderId}`);
+      await axios.delete(`/orders/${orderId}`);
       const updatedOrders = orders.filter((order) => order._id !== orderId);
       const totalPriceAfterDelete = updatedOrders.reduce(
         (acc, order) => acc + totalOrderPrice(order.cartItems),
@@ -97,53 +97,57 @@ export default function Orders() {
 
   const handlePaymentSuccess = async () => {
     try {
-      const userEmail = localStorage.getItem("userEmail");
-      const userName = localStorage.getItem("Name");
+        const userEmail = localStorage.getItem("userEmail");
+        const userName = localStorage.getItem("Name");
 
-      // Make a POST request to your backend endpoint to initiate Razorpay payment
-      const response = await axios.post("http://localhost:5000/payment/razorpay", {
-        amount: totalPrice * 100, // Amount in paisa (multiply by 100 to convert to paisa)
-        currency: "INR",
-        userEmail,
-        userName,
-        cartItems: orders.length > 0 ? orders[0].cartItems : [], // Assuming cartItems is an array of items
-      });
+        // Convert totalPrice to integer (in paisa)
+        const amountInPaisa = Math.round(totalPrice * 100);
 
-      // Handle the response from the backend
-      if (response.status === 200) {
-        const { orderId, razorpayDetails } = response.data;
+        // Make a POST request to your backend endpoint to initiate Razorpay payment
+        const response = await axios.post("/payment/razorpay", {
+            amount: amountInPaisa,
+            currency: "INR",
+            userEmail,
+            userName,
+            cartItems: orders.length > 0 ? orders[0].cartItems : [], // Assuming cartItems is an array of items
+        });
 
-        // Redirect the user to the Razorpay checkout page
-        const options = {
-          key: "rzp_live_dDHVgHh9Ks59E7", // Replace with your Razorpay key ID
-          amount: totalPrice * 100, // Amount in paisa (multiply by 100 to convert to paisa)
-          currency: "INR",
-          order_id: orderId,
-          handler: function (response) {
-            // Handle payment success
-            alert("Payment successful!");
-            console.log(response);
-            console.log(razorpayDetails);
-          },
-          prefill: {
-            email: userEmail,
-          },
-          theme: {
-            color: "#F37254",
-          },
-        };
+        // Handle the response from the backend
+        if (response.status === 200) {
+            const { orderId, razorpayDetails } = response.data;
 
-        const rzp1 = new window.Razorpay(options);
-        rzp1.open();
-      } else {
-        console.error("Unexpected response:", response);
-        alert("Payment failed. Unexpected response from the server.");
-      }
+            // Redirect the user to the Razorpay checkout page
+            const options = {
+                key: "rzp_live_dDHVgHh9Ks59E7", // Replace with your Razorpay key ID
+                amount: amountInPaisa,
+                currency: "INR",
+                order_id: orderId,
+                handler: function (response) {
+                    // Handle payment success
+                    alert("Payment successful!");
+                    console.log(response);
+                    console.log(razorpayDetails);
+                },
+                prefill: {
+                    email: userEmail,
+                },
+                theme: {
+                    color: "#F37254",
+                },
+            };
+
+            const rzp1 = new window.Razorpay(options);
+            rzp1.open();
+        } else {
+            console.error("Unexpected response:", response);
+            alert("Payment failed. Unexpected response from the server.");
+        }
     } catch (error) {
-      console.error("Error processing payment:", error);
-      alert("Payment failed. Please try again later.");
+        console.error("Error processing payment:", error);
+        alert("Payment failed. Please try again later.");
     }
-  };
+};
+
 
   return (
     <div>
@@ -190,13 +194,13 @@ export default function Orders() {
                     <Button
                       variant="info"
                       onClick={() => handleViewDetails(order)}
-                    >
+                      style={{"backgroundColor":"blue"}} >
                       View Details
                     </Button>{" "}
                     <Button
                       variant="danger"
                       onClick={() => handleDeleteOrder(order._id)}
-                    >
+                      style={{"backgroundColor":"red"}}  >
                       Delete
                     </Button>
                   </td>
@@ -205,7 +209,7 @@ export default function Orders() {
             </tbody>
           </Table>
           <h2>Total Price of All Orders: ${totalPrice}</h2>
-          <Button variant="success" onClick={() => setShowPaymentModal(true)}>
+          <Button variant="success" onClick={() => setShowPaymentModal(true)}style={{"backgroundColor":"blue"}}>
             Make Payment
           </Button>
         </>
@@ -239,7 +243,7 @@ export default function Orders() {
           </p>
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={handleCloseModal}>
+          <Button variant="secondary" onClick={handleCloseModal}style={{"backgroundColor":"green"}}>
             Close
           </Button>
         </Modal.Footer>
@@ -266,15 +270,17 @@ export default function Orders() {
         <Modal.Footer>
           <Button
             variant="secondary"
-            onClick={() => setShowPaymentModal(false)}
+            onClick={() => setShowPaymentModal(false)} style={{"backgroundColor":"green"}}
           >
             Cancel
           </Button>
-          <Button variant="primary" onClick={handlePaymentSuccess}>
+          <Button variant="primary" onClick={handlePaymentSuccess} style={{"backgroundColor":"blue"}}>
             Pay ${totalPrice}
           </Button>
         </Modal.Footer>
       </Modal>
+      
+
     </div>
   );
 }
